@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% import "_icons.html" as ic %}
+{% block title %}Servers — AutoMod Pro{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title"><span class="status-dot"></span>Servers <span class="badge">LIVE</span></h1>
+</div>
+
+{% if guilds %}
+<div class="stat-grid">
+  {% for g in guilds %}
+  <a href="{{ url_for('dashboard', guild_id=g.id) }}" class="server-card">
+    <div class="server-icon">{{ ic.icon('bot', 20) }}</div>
+    <div>
+      <div class="server-id-label">Server ID</div>
+      <div class="server-id">{{ g.id }}</div>
+    </div>
+    <div class="server-cta">Manage server {{ ic.icon('arrow-right', 14) }}</div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <div class="empty-icon">{{ ic.icon('bot') }}</div>
+    <h3>No servers yet</h3>
+    <p>Invite the bot to a Discord server and send a message there — it'll show up here automatically.</p>
+    <a href="{{ bot_invite_url }}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:0.4rem;">
+      {{ ic.icon('plus', 16) }} Add to a server
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

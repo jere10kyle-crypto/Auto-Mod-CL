@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% import "_icons.html" as ic %}
+{% block title %}Members — AutoMod Pro{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">{{ ic.icon('users') }} Members</h1>
+  <a href="{{ url_for('dashboard', guild_id=guild_id) }}" class="btn btn-ghost">{{ ic.icon('arrow-left', 15) }} Overview</a>
+</div>
+
+<div class="card">
+  {% if users %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Level</th>
+        <th>XP</th>
+        <th>Messages</th>
+        <th>Strikes</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>
+          <div style="font-weight:600;font-size:0.85rem;">{{ u.username }}</div>
+          <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);">{{ u.user_id }}</div>
+        </td>
+        <td><span class="tag tag-blue">Lv {{ u.level }}</span></td>
+        <td style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);">{{ u.xp }}</td>
+        <td style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);">{{ u.messages }}</td>
+        <td>
+          {% if u.strikes >= 5 %}
+            <span class="tag tag-red">{{ u.strikes }}</span>
+          {% elif u.strikes >= 3 %}
+            <span class="tag tag-yellow">{{ u.strikes }}</span>
+          {% elif u.strikes > 0 %}
+            <span class="tag tag-blue">{{ u.strikes }}</span>
+          {% else %}
+            <span style="color:var(--muted);font-family:var(--mono);font-size:0.78rem;">0</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.shadow_muted %}
+            <span class="tag tag-pink">Shadow Muted</span>
+          {% else %}
+            <span style="color:var(--green);font-size:0.75rem;font-weight:600;">Active</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.strikes > 0 %}
+          <button class="btn btn-danger btn-sm"
+                  onclick="clearStrikes({{ u.user_id }}, '{{ u.username }}', this)">{{ ic.icon('trash', 13) }} Reset</button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">{{ ic.icon('user') }}</div>
+    <h3>No member data yet</h3>
+    <p>Once members start chatting in the server, their activity and strikes will show up here.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const guildId = '{{ guild_id }}';
+async function clearStrikes(userId, name, btn) {
+  if (!confirm(`Reset all strikes for ${name}?`)) return;
+  const r = await fetch(`/api/${guildId}/clear_strikes/${userId}`, {method:'POST'});
+  if ((await r.json()).ok) {
+    const row = btn.closest('tr');
+    row.querySelector('td:nth-child(5)').innerHTML =
+      '<span style="color:var(--muted);font-family:var(--mono);font-size:0.78rem;">0</span>';
+    btn.remove();
+  }
+}
+</script>
+{% endblock %}

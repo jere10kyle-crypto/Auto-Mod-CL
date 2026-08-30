@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Login — Auto-Mod-Pro V2{% endblock %}
+{% block auth_content %}
+<script>window.location.href = "{{ url_for('login') }}";</script>
+{% endblock %}
